@@ -2,7 +2,7 @@ import streamlit as st
 import joblib
 import pandas as pd
 
-model, features = joblib.load("D:\marketing_campaign_project\models\campaign_model.pkl")
+model, features = joblib.load(r"D:\marketing_campaign_project\models\campaign_model.pkl")
 
 st.title("Marketing Campaign Predictor")
 
