@@ -26,7 +26,7 @@ B. Venkatamani Chandra
 **Department:** B.Tech CSE (Data Science)  
 """)
 
-st.info("Model Accuracy: 89.75% (Random Forest Classifier)")
+st.info("Model Accuracy: 99.35% (Random Forest Classifier)")
 
 # ---------------- SAMPLE DATA ----------------
 if st.button("📌 Load Sample Campaign"):
