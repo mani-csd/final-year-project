@@ -9,7 +9,7 @@ model, features = joblib.load("models/campaign_model.pkl")
 
 st.set_page_config(page_title="Marketing Campaign Predictor", layout="centered")
 
-# ---- Header ----
+# ---------------- HEADER ----------------
 st.title("📊 Marketing Campaign Response Predictor")
 
 st.markdown("""
@@ -28,25 +28,47 @@ B. Venkatamani Chandra
 
 st.info("Model Accuracy: 89.75% (Random Forest Classifier)")
 
-# ---- Sample Data Button ----
+# ---------------- SAMPLE DATA ----------------
 if st.button("📌 Load Sample Campaign"):
-    st.session_state.clicks = 500
-    st.session_state.revenue = 15000
-    st.session_state.roi = 3.5
-    st.session_state.discount = 20
+    st.session_state["clicks"] = 500
+    st.session_state["revenue"] = 15000.0
+    st.session_state["roi"] = 3.5
+    st.session_state["discount"] = 20.0
 
-# ---- Input Fields ----
+# ---------------- INPUTS ----------------
 col1, col2 = st.columns(2)
 
 with col1:
-    clicks = st.number_input("Clicks", min_value=0, value=st.session_state.get("clicks", 0))
-    revenue = st.number_input("Revenue Generated", min_value=0.0, value=st.session_state.get("revenue", 0.0))
+    clicks = st.number_input(
+        "Clicks",
+        min_value=0,
+        value=int(st.session_state.get("clicks", 0)),
+        help="Total number of customer clicks"
+    )
+
+    revenue = st.number_input(
+        "Revenue Generated",
+        min_value=0.0,
+        value=float(st.session_state.get("revenue", 0.0)),
+        help="Total revenue from the campaign"
+    )
 
 with col2:
-    roi = st.number_input("ROI", min_value=0.0, value=st.session_state.get("roi", 0.0))
-    discount = st.number_input("Discount Level", min_value=0.0, value=st.session_state.get("discount", 0.0))
+    roi = st.number_input(
+        "ROI",
+        min_value=0.0,
+        value=float(st.session_state.get("roi", 0.0)),
+        help="Return on Investment"
+    )
 
-# ---- Create input DataFrame ----
+    discount = st.number_input(
+        "Discount Level",
+        min_value=0.0,
+        value=float(st.session_state.get("discount", 0.0)),
+        help="Discount offered (%)"
+    )
+
+# ---------------- CREATE INPUT DF ----------------
 input_df = pd.DataFrame(0, index=[0], columns=features)
 
 if "Clicks" in input_df.columns:
@@ -58,7 +80,7 @@ if "ROI" in input_df.columns:
 if "Discount_Level" in input_df.columns:
     input_df["Discount_Level"] = discount
 
-# ---- Prediction ----
+# ---------------- PREDICTION ----------------
 if st.button("🔮 Predict"):
     prob = model.predict_proba(input_df)[0][1]
     pred = 1 if prob > 0.5 else 0
@@ -70,13 +92,14 @@ if st.button("🔮 Predict"):
     else:
         st.error("🔴 Customer will NOT respond to this campaign")
 
-    # ---- Feature Importance ----
+    # -------- FEATURE IMPORTANCE --------
     st.subheader("📌 Top Factors Influencing Customer Response")
 
     importance = pd.DataFrame({
         "Feature": features,
         "Importance": model.feature_importances_
     })
+
     importance = importance[importance["Importance"] > 0]
     importance = importance.sort_values(by="Importance", ascending=False).head(5)
 
@@ -87,17 +110,18 @@ if st.button("🔮 Predict"):
     ax.set_title("Top 5 Features")
     st.pyplot(fig)
 
-    # ---- PDF Download ----
+    # -------- PDF REPORT --------
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", size=12)
+
     pdf.cell(0, 10, "Marketing Campaign Prediction Report", ln=True)
     pdf.cell(0, 10, f"Clicks: {clicks}", ln=True)
     pdf.cell(0, 10, f"Revenue: {revenue}", ln=True)
     pdf.cell(0, 10, f"ROI: {roi}", ln=True)
     pdf.cell(0, 10, f"Discount: {discount}", ln=True)
     pdf.cell(0, 10, f"Response Probability: {prob*100:.2f}%", ln=True)
-    pdf.cell(0, 10, "Prediction: " + ("Respond" if pred==1 else "Not Respond"), ln=True)
+    pdf.cell(0, 10, "Prediction: " + ("Respond" if pred == 1 else "Not Respond"), ln=True)
 
     st.download_button(
         label="📄 Download Prediction Report",
