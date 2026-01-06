@@ -4,18 +4,16 @@ import pandas as pd
 
 def train(df):
     df = pd.get_dummies(df, drop_first=True)
-
-    X = df.drop(columns=[
-    "Customer_Response",
-    "Conversion_Rate",      
-])
+    
+    features = ["Clicks", "Revenue_Generated", "ROI", "Discount_Level"]
+    X = df[features]
     y = df["Customer_Response"]
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42
+        X, y, test_size=0.2, random_state=42 ,stratify=y
     )
 
-    model = RandomForestClassifier(n_estimators=200)
+    model = RandomForestClassifier(n_estimators=200, random_state=42)
     model.fit(X_train, y_train)
 
     return model, X_test, y_test, X.columns

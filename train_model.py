@@ -2,9 +2,9 @@ import joblib
 import os
 import pandas as pd
 from src.data_preprocessing import load_data
-from src.feature_engineering import create_features
-from src.model_training import train
 from src.model_evaluation import evaluate
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
 
 print("Current working directory:", os.getcwd())
 
@@ -13,29 +13,35 @@ print("Loading data...")
 df = load_data("data/raw/marketing_and_product_performance.csv")
 print("Data loaded:", df.shape)
 
-# 2️⃣ Feature engineering
-print("Creating features...")
-df = create_features(df)
-
-# 3️⃣ Create Conversion Rate
+# 2️⃣ Create Conversion Rate
 df["Conversion_Rate"] = df["Conversions"] / (df["Clicks"] + 1)
 
-# 4️⃣ Create target (Business Logic)
+# 3️⃣ Create target (Business Logic)
 df["Customer_Response"] = ((df["Conversion_Rate"] > 0.05) & (df["ROI"] > 1)).astype(int)
 
-# 5️⃣ Train model
-print("Training model...")
-model, X_test, y_test, features = train(df)
+# 4️⃣ Select ONLY UI input features
+features = ["Clicks", "Revenue_Generated", "ROI", "Discount_Level"]
+X = df[features]
+y = df["Customer_Response"]
 
-# 6️⃣ Evaluate model
+# 5️⃣ Train-test split
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
+
+# 6️⃣ Train model
+print("Training model...")
+model = RandomForestClassifier(n_estimators=200, random_state=42)
+model.fit(X_train, y_train)
+
+# 7️⃣ Evaluate
 print("Evaluating model...")
 evaluate(model, X_test, y_test)
 
-# 7️⃣ Ensure models folder exists
+# 8️⃣ Save model and feature list
 if not os.path.exists("models"):
     os.makedirs("models")
 
-# 8️⃣ Save model and feature list
 joblib.dump((model, features), "models/campaign_model.pkl")
 
 print("Model and feature list saved to models/campaign_model.pkl")
