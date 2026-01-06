@@ -7,10 +7,7 @@ def train(df):
 
     X = df.drop(columns=[
     "Customer_Response",
-    "Conversion_Rate",      # used to create target
-    "ROI",                  # used to create target
-    "Conversions",         # highly correlated with target
-    "Revenue_Generated"    # highly correlated
+    "Conversion_Rate",      
 ])
     y = df["Customer_Response"]
 
