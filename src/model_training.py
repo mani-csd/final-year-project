@@ -5,7 +5,13 @@ import pandas as pd
 def train(df):
     df = pd.get_dummies(df, drop_first=True)
 
-    X = df.drop("Customer_Response", axis=1)
+    X = df.drop(columns=[
+    "Customer_Response",
+    "Conversion_Rate",      # used to create target
+    "ROI",                  # used to create target
+    "Conversions",         # highly correlated with target
+    "Revenue_Generated"    # highly correlated
+])
     y = df["Customer_Response"]
 
     X_train, X_test, y_train, y_test = train_test_split(

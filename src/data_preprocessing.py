@@ -3,7 +3,10 @@ import pandas as pd
 def load_data(path):
     df = pd.read_csv(path)
 
-    df["Customer_Response"] = df["Conversions"].apply(lambda x: 1 if x > 0 else 0)
+    df["Conversion_Rate"] = df["Conversions"] / (df["Clicks"] + 1)
+
+    df["Customer_Response"] = ((df["Conversion_Rate"] > 0.05) & (df["ROI"] > 1)).astype(int)
+
 
     id_cols = [c for c in df.columns if "ID" in c]
     df = df.drop(columns=id_cols)
